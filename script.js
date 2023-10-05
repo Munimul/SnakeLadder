@@ -18,10 +18,12 @@ const imgDice = document.querySelector(".imgDice");
 
 // global variables
 
-let player0Score, player1Score, activePlayer;
+let player0Score, player1Score, activePlayer, playState, winNum;
 
 function init() {
   //Initial condition
+  playState = true;
+  winNum = 35;
   p0Score.textContent = 0;
   p1Score.textContent = 0;
   player0Score = 0;
@@ -34,15 +36,6 @@ function init() {
 }
 
 init();
-/*
-//Initial condition
-player0Score = 0;
-player1Score = 0;
-activePlayer = 0;
-
-//set player0's background to green
-player0.classList.add("green");
-*/
 
 // logic functions///
 
@@ -112,43 +105,56 @@ function play(playerScore, playerCurrElement, otherScore) {
   const roll = diceRollShow();
   const prevScore = playerScore;
   playerScore += roll;
-  // set playerscore globally
-  activePlayer === 0
-    ? (player0Score = playerScore)
-    : (player1Score = playerScore);
-  // show current score
-  playerCurrElement.textContent = playerScore;
+  // check for winning condition
+  if (playerScore >= winNum) {
+    // show player wins
+    if (activePlayer === 0) {
+      p0Score.textContent = playerScore;
+      console.log("player 1 wins!");
+    } else {
+      p1Score.textContent = playerScore;
+      console.log("player 2 wins!");
+    }
+    playState = false;
+  } else {
+    // set playerscore globally
+    activePlayer === 0
+      ? (player0Score = playerScore)
+      : (player1Score = playerScore);
+    // show current score
+    playerCurrElement.textContent = playerScore;
 
-  ////Remove player icon from previous position
-  // First Roll (conditon playerscore is ===0) -- No need to remove
-  if (prevScore === 0) {
-    putPlayerIcon(playerScore);
-  }
-  // Not first Roll and players scores are different ---  Remove player icon from previous position
-  else if (prevScore != otherScore) {
-    //remove icon from previous place
-    restoreDigit(prevScore);
-    putPlayerIcon(playerScore);
-  }
+    ////Remove player icon from previous position
+    // First Roll (conditon playerscore is ===0) -- No need to remove
+    if (prevScore === 0) {
+      putPlayerIcon(playerScore);
+    }
+    // Not first Roll and players scores are different ---  Remove player icon from previous position
+    else if (prevScore != otherScore) {
+      //remove icon from previous place
+      restoreDigit(prevScore);
+      putPlayerIcon(playerScore);
+    }
 
-  // Not first Roll and players scores are same -- Remove 2player icon and put other players icon to that position
-  else {
-    twoIconToOne(prevScore);
-    putPlayerIcon(playerScore);
+    // Not first Roll and players scores are same -- Remove 2player icon and put other players icon to that position
+    else {
+      twoIconToOne(prevScore);
+      putPlayerIcon(playerScore);
+    }
   }
 }
 
 player0Button.addEventListener("click", function () {
-  if (activePlayer === 0) {
+  if (activePlayer === 0 && playState) {
     play(player0Score, p0Score, player1Score);
-    activePlayer = 1;
+    playState ? (activePlayer = 1) : (activePlayer = 0);
   }
 });
 
 player1Button.addEventListener("click", function () {
-  if (activePlayer === 1) {
+  if (activePlayer === 1 && playState) {
     play(player1Score, p1Score, player0Score);
-    activePlayer = 0;
+    playState ? (activePlayer = 0) : (activePlayer = 1);
   }
 });
 
